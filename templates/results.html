@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Diagnostic Results for {{ target }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="bi bi-activity"></i>
+                    Diagnostic Results
+                </h1>
+                <p class="text-muted mb-0">Target: <code>{{ target }}</code></p>
+            </div>
+            <div class="text-end">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    New Diagnosis
+                </a>
+            </div>
+        </div>
+
+        <!-- Health Score -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="card-title mb-2">
+                            <i class="bi bi-heart-pulse"></i>
+                            Health Score
+                        </h5>
+                        <p class="card-text">{{ result.summary }}</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="display-4 {% if result.health_score >= 80 %}text-success{% elif result.health_score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ result.health_score }}/100
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fix Suggestions -->
+        {% if result.fix_suggestions %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-wrench"></i>
+                    Fix Suggestions
+                </h5>
+                <ul class="list-unstyled mb-0">
+                    {% for fix in result.fix_suggestions %}
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-right text-primary"></i>
+                        {{ fix }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Diagnostic Results -->
+        <div class="row">
+            <!-- DNS -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-dns me-2"></i>
+                        <strong>DNS Resolution</strong>
+                        <span class="ms-auto">
+                            {% if result.raw.dns.ok %}
+                                <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">{{ result.explained.dns }}</p>
+                        {% if mode == "expert" and result.raw.dns %}
+                        <div class="mt-3">
+                            <small class="text-muted">Technical Details:</small>
+                            <div class="bg-dark rounded p-2 mt-1">
+                                <small class="font-monospace text-light">
+                                    Host: {{ result.raw.dns.host }}<br>
+                                    IP: {{ result.raw.dns.ip if result.raw.dns.ip else 'N/A' }}<br>
+                                    {% if result.raw.dns.error %}Error: {{ result.raw.dns.error }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SSL -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        <strong>SSL Certificate</strong>
+                        <span class="ms-auto">
+                            {% if result.raw.ssl.ok %}
+                                <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">{{ result.explained.ssl }}</p>
+                        {% if mode == "expert" and result.raw.ssl %}
+                        <div class="mt-3">
+                            <small class="text-muted">Technical Details:</small>
+                            <div class="bg-dark rounded p-2 mt-1">
+                                <small class="font-monospace text-light">
+                                    Host: {{ result.raw.ssl.host }}<br>
+                                    {% if result.raw.ssl.days_left %}Days Left: {{ result.raw.ssl.days_left }}<br>{% endif %}
+                                    {% if result.raw.ssl.subject %}Subject: {{ result.raw.ssl.subject.get('commonName', 'N/A') }}<br>{% endif %}
+                                    {% if result.raw.ssl.error %}Error: {{ result.raw.ssl.error }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTTP -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-globe me-2"></i>
+                        <strong>HTTP Connectivity</strong>
+                        <span class="ms-auto">
+                            {% if result.raw.http.ok %}
+                                <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">{{ result.explained.http }}</p>
+                        {% if mode == "expert" and result.raw.http %}
+                        <div class="mt-3">
+                            <small class="text-muted">Technical Details:</small>
+                            <div class="bg-dark rounded p-2 mt-1">
+                                <small class="font-monospace text-light">
+                                    URL: {{ result.raw.http.url if result.raw.http.url else 'N/A' }}<br>
+                                    {% if result.raw.http.status_code %}Status: {{ result.raw.http.status_code }}<br>{% endif %}
+                                    {% if result.raw.http.response_time_ms %}Response Time: {{ result.raw.http.response_time_ms }}ms<br>{% endif %}
+                                    {% if result.raw.http.error %}Error: {{ result.raw.http.error }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ping -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-wifi me-2"></i>
+                        <strong>Ping Test</strong>
+                        <span class="ms-auto">
+                            {% if result.raw.ping.ok %}
+                                <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">{{ result.explained.ping }}</p>
+                        {% if mode == "expert" and result.raw.ping %}
+                        <div class="mt-3">
+                            <small class="text-muted">Technical Details:</small>
+                            <div class="bg-dark rounded p-2 mt-1">
+                                <small class="font-monospace text-light">
+                                    Host: {{ result.raw.ping.host }}<br>
+                                    {% if result.raw.ping.latency_ms %}Latency: {{ result.raw.ping.latency_ms }}ms<br>{% endif %}
+                                    {% if result.raw.ping.error %}Error: {{ result.raw.ping.error }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- GeoIP -->
+            <div class="col-lg-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        <strong>GeoIP Location</strong>
+                        <span class="ms-auto">
+                            {% if result.raw.geoip.ok %}
+                                <i class="bi bi-check-circle text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="mb-3">{{ result.explained.geoip }}</p>
+                            </div>
+                            {% if result.raw.geoip.ok %}
+                            <div class="col-md-4">
+                                <div class="text-md-end">
+                                    <div class="small text-muted">Organization</div>
+                                    <div>{{ result.raw.geoip.org if result.raw.geoip.org else 'Unknown' }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if mode == "expert" and result.raw.geoip %}
+                        <div class="mt-3">
+                            <small class="text-muted">Technical Details:</small>
+                            <div class="bg-dark rounded p-2 mt-1">
+                                <small class="font-monospace text-light">
+                                    Host: {{ result.raw.geoip.host }}<br>
+                                    {% if result.raw.geoip.ip %}IP: {{ result.raw.geoip.ip }}<br>{% endif %}
+                                    {% if result.raw.geoip.asn %}ASN: {{ result.raw.geoip.asn }}<br>{% endif %}
+                                    {% if result.raw.geoip.country %}Country: {{ result.raw.geoip.country }}<br>{% endif %}
+                                    {% if result.raw.geoip.error %}Error: {{ result.raw.geoip.error }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Section -->
+        {% if result.ai_insights %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-robot"></i>
+                            AI-Powered Insights
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Root Cause Analysis -->
+                        {% if result.ai_insights.root_cause_analysis %}
+                        <div class="mb-4">
+                            <h6 class="text-info">
+                                <i class="bi bi-search"></i>
+                                Root Cause Analysis
+                            </h6>
+                            {% for issue in result.ai_insights.root_cause_analysis %}
+                            <div class="alert alert-{{ 'danger' if issue.severity == 'high' else 'warning' if issue.severity == 'medium' else 'info' }} mb-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ issue.category }}:</strong> {{ issue.issue }}
+                                        <br><small class="text-muted">Impact: {{ issue.impact }}</small>
+                                        {% if issue.technical_details %}
+                                        <br><small class="font-monospace">{{ issue.technical_details }}</small>
+                                        {% endif %}
+                                    </div>
+                                    <span class="badge bg-{{ 'danger' if issue.severity == 'high' else 'warning' if issue.severity == 'medium' else 'info' }}">
+                                        {{ issue.severity.upper() }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Predicted Issues -->
+                        {% if result.ai_insights.predicted_issues %}
+                        <div class="mb-4">
+                            <h6 class="text-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Predicted Issues
+                            </h6>
+                            {% for prediction in result.ai_insights.predicted_issues %}
+                            <div class="alert alert-warning mb-2">
+                                <strong>{{ prediction.type.replace('_', ' ').title() }}:</strong> {{ prediction.description }}
+                                <br><small class="text-muted">Recommended: {{ prediction.recommended_action }}</small>
+                                <br><small class="text-muted">Timeline: {{ prediction.timeline }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Performance and Risk Assessment -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-dark rounded">
+                                    <div class="h4 text-info mb-1">{{ result.ai_insights.performance_score }}/100</div>
+                                    <small class="text-muted">AI Performance Score</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-dark rounded">
+                                    <div class="h4 mb-1 {% if result.ai_insights.risk_assessment == 'high' %}text-danger{% elif result.ai_insights.risk_assessment == 'medium' %}text-warning{% else %}text-success{% endif %}">
+                                        {{ result.ai_insights.risk_assessment.upper() }}
+                                    </div>
+                                    <small class="text-muted">Risk Assessment</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="bi bi-arrow-clockwise"></i>
+                Run Another Diagnosis
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

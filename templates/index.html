@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Network Diagnostics - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="bi bi-wifi text-primary"></i>
+                Network Diagnostics
+            </h1>
+            <p class="lead text-muted">
+                AI-powered comprehensive networking troubleshooting for domains and IP addresses
+            </p>
+            <div class="badge bg-info fs-6 mb-3">
+                <i class="bi bi-robot"></i> Enhanced with Portia AI
+            </div>
+        </div>
+
+        <!-- Diagnostic Form -->
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('diagnose') }}">
+                    <div class="mb-4">
+                        <label for="target" class="form-label">
+                            <i class="bi bi-globe"></i>
+                            Domain or IP Address
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control form-control-lg" 
+                            id="target" 
+                            name="target" 
+                            placeholder="example.com or 8.8.8.8"
+                            required
+                        >
+                        <div class="form-text">
+                            Enter a domain name (example.com) or IP address (192.168.1.1) to diagnose
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="mode" class="form-label">
+                            <i class="bi bi-gear"></i>
+                            Explanation Mode
+                        </label>
+                        <select class="form-select" id="mode" name="mode">
+                            <option value="beginner">Beginner (Simple explanations)</option>
+                            <option value="expert">Expert (Technical details)</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-play-circle"></i>
+                            Run Diagnostics
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="row mt-5">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-dns text-info fs-1 mb-3"></i>
+                        <h5 class="card-title">DNS Resolution</h5>
+                        <p class="card-text text-muted">
+                            Check domain name resolution and identify DNS issues
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-lock text-success fs-1 mb-3"></i>
+                        <h5 class="card-title">SSL Certificate</h5>
+                        <p class="card-text text-muted">
+                            Validate SSL certificates and check expiration dates
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-globe text-warning fs-1 mb-3"></i>
+                        <h5 class="card-title">HTTP Connectivity</h5>
+                        <p class="card-text text-muted">
+                            Test website accessibility and response times
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-radar text-danger fs-1 mb-3"></i>
+                        <h5 class="card-title">Ping & GeoIP</h5>
+                        <p class="card-text text-muted">
+                            Measure latency and identify server location
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Features Section -->
+        <div class="card mt-5 border-info">
+            <div class="card-header bg-info text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-robot"></i>
+                    AI-Powered Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-lightbulb text-warning fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Root Cause Analysis</h6>
+                                <p class="text-muted mb-0 small">AI identifies the underlying causes of networking issues with intelligent insights</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-magic text-info fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Smart Recommendations</h6>
+                                <p class="text-muted mb-0 small">Get AI-generated fix suggestions with estimated resolution times</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-graph-up text-success fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Performance Scoring</h6>
+                                <p class="text-muted mb-0 small">AI calculates comprehensive performance and risk assessment scores</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-eye text-primary fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Predictive Insights</h6>
+                                <p class="text-muted mb-0 small">Predict potential future issues before they impact your infrastructure</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
