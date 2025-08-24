@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-workspace"
+name = "networking-troubleshooter-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered agent for DNS, SSL, HTTP, Ping, and GeoIP diagnostics."
 requires-python = ">=3.11"
 dependencies = [
     "email-validator>=2.2.0",
